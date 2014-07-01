@@ -1,0 +1,180 @@
+ #mainBody{
+        width: 100%;
+    }
+    #fbSearchMainContainer{
+     margin-left: auto;
+     margin-right: auto;
+     width: 73%;
+     height: 600px;
+     background-color: #f8f8ff;
+     font-family: cursive;
+      margin-left: 20px;
+    }
+    #fbSearchInput{
+      margin: auto;
+      width:70%;
+      height: 50px;
+      text-align: center;
+      font-size: 25px;
+      margin-bottom: 20px;
+
+    }
+    #searchDisplayContainer{
+     max-width: 100%;
+     max-height: 80%;
+     display: block;
+     overflow-y: scroll;
+
+    }
+    .searchIndividualDataContainer{
+        margin-left: 2%;
+        width:87%;
+        min-height: 80px;
+        background-color: #f8f8ff;
+        border-color: black;
+        border-style: solid;
+        border-radius: 5px;
+        border-width: thin;
+        margin-bottom: 10px;
+    }
+
+      .searchIndividualDataContainerExpanded{
+       margin-left: 2%;
+        width:87%;
+        min-height: 300px;
+        background-color: #f8f8ff;
+        border-color: black;
+        border-style: solid;
+        border-radius: 5px;
+        border-width: thin;
+        margin-bottom: 10px;
+    }
+    .searchDataImage{
+        height: 80px;
+        width: 80px;
+        margin-right: 10px;
+    }
+    .showMoreImg{
+        float: right;
+        height: 50px;
+        width: 50px;
+        padding-top: 16px;
+        padding-right: 20px;
+    }
+    .showLessImg{
+        float: right;
+        height: 30px;
+        width: 60px;
+        padding-top: 25px;
+        display: none;
+        padding-right: 20px;
+    }
+    .favouriteImg{
+       float: right;
+        height: 45px;
+        width: 60px;
+        padding-top: 20px;
+        padding-right: 20px;
+    }
+    .hiddenDiv{
+        display: none;
+    }
+    .aboutContainer{
+      max-width: 40%;
+      height: 80px;
+      margin-left: 30px;
+      font-size: 30px;
+      vertical-align: text-bottom;
+      display: inline-block;
+    }
+
+    .goimage{
+        height: 50px;
+        width: 50px;
+        float: right;
+        margin-top: 15px;
+        margin-right: 10px;
+    }
+    .entrylabel{
+        color: red;
+    }
+
+
+    #favouritesContainer{
+      width: 20%;
+      border-style: solid;
+      border-color: black;
+      border-width: thin;
+      display: inline-block;
+      background-color: #f8f8ff;
+      max-height: 600px;
+      overflow-y: auto;
+      float: left;
+      margin-top: 80px;
+      border-radius: 5px;
+
+    }
+    #favouritesHeader{
+        font-size: 20px;
+        padding-left: 10px;
+    }
+
+    .removeFavLabel{
+        height: 20px;
+
+    }
+    .removeFav{
+        height: 25px;
+        width: 25px;
+        float: right;
+        margin-right: 10px;
+    }
+    .favIndividualContainer{
+        height: 40px;
+        font-family: cursive;
+        font-size: 20px;
+        padding-left: 5px;
+
+    }
+
+    @media only screen and (min-width : 668px) and (max-width : 979px){
+        #fbSearchMainContainer{
+     width: 73%;
+     height: 100%;
+     background-color: #f8f8ff;
+     font-family: cursive;
+    }
+    }
+
+    @media only screen and (max-width : 668px){
+        #fbSearchMainContainer{
+     width: 100%;
+     height: 100%;
+    }
+
+    #favouritesContainer{
+        width: 100%;
+        max-height: 300px;
+    }
+    #fbSearchInput{
+     width: 100%;
+     margin: 0px;
+    }
+    .goimage{
+      height: 30px;
+      width: 30px;
+    }
+    .favouriteImg{
+      height: 30px;
+      width: 30px;
+    }
+    .showLessImg{
+     height: 30px;
+      width: 30px;
+    }
+    .showMoreImg{
+     height: 30px;
+      width: 30px;
+    }
+
+    }
