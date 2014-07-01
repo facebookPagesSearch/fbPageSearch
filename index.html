@@ -1,0 +1,483 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Facebook page search</title>
+	<meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script ref="http://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.js"></script>
+    <link rel="stylesheet" type="text/css" href="fbPageSearch.css">
+</head>
+<style>
+</style>
+<script type="text/javascript">
+    var reqUrlPart1 ="https://graph.facebook.com/";
+    var reqUrlPart2 ="?access_token=";
+    var connectionPoolSize=8;
+    var accessToken = "CAAHlefodN4IBACStOylDONBBZCdz9AHZAMZBvzCFPjZCa2uSlsm5pYLdEY57nXTqbIK3LMGPfDJHSVXGzZCu9WBZA9AvtakYG0hInprsimZCqjH366mHNKkfLcSFt28ikrtwsPQFKZAWH1n8c48dHt1PaqEokxgOsLN7k5dT8RPZBJMwriTPAkhEE&expires=5184000";
+    var AVAILABLE_STATUS="available";
+    var BLOCKED_STATUS ="blocked";
+    var COOKIE_STORE_KEY ="facebookPageSearch.favourites";
+    var favouritesArray;
+
+    //According to my testing Max 4 connections are needed . Adding 8 connections to be absolutely sure we are not out of resources
+    var xmlHttpConn0 = new XMLHttpRequest();
+    var xmlHttpConn1 = new XMLHttpRequest();
+    var xmlHttpConn2 = new XMLHttpRequest();
+    var xmlHttpConn3 = new XMLHttpRequest();
+    var xmlHttpConn4 = new XMLHttpRequest();
+    var xmlHttpConn5 = new XMLHttpRequest();
+    var xmlHttpConn6 = new XMLHttpRequest();
+    var xmlHttpConn7 = new XMLHttpRequest();
+
+
+    var connectorArray = new Array();
+    var displayDataArray = new Array();
+    connectorArray.push(xmlHttpConn0);
+    connectorArray.push(xmlHttpConn1);
+    connectorArray.push(xmlHttpConn2);
+    connectorArray.push(xmlHttpConn3);
+    connectorArray.push(xmlHttpConn4);
+    connectorArray.push(xmlHttpConn5);
+    connectorArray.push(xmlHttpConn6);
+    connectorArray.push(xmlHttpConn7);
+
+
+
+    xmlHttpConn0.onreadystatechange=function()
+  {
+
+  if (xmlHttpConn0.readyState==4 ){
+
+    if( xmlHttpConn0.status==200){
+    addDataToDisplayDataArray(JSON.parse(xmlHttpConn0.responseText));
+    }else{
+
+    }
+    connectionPool[0].status =AVAILABLE_STATUS;
+  }
+  };
+    xmlHttpConn1.onreadystatechange=function()
+  {
+
+  if (xmlHttpConn1.readyState==4 ){
+     if(xmlHttpConn1.status==200){
+      addDataToDisplayDataArray(JSON.parse(xmlHttpConn1.responseText));
+     }else{
+
+     }
+     connectionPool[1].status =AVAILABLE_STATUS;
+    }
+  };
+
+
+  xmlHttpConn2.onreadystatechange=function()
+  {
+
+  if (xmlHttpConn2.readyState==4 ){
+    if(xmlHttpConn2.status==200){
+      addDataToDisplayDataArray(JSON.parse(xmlHttpConn2.responseText));
+    }
+
+    connectionPool[2].status =AVAILABLE_STATUS;
+    }
+  };
+
+  xmlHttpConn3.onreadystatechange=function()
+  {
+
+  if (xmlHttpConn3.readyState==4 ){
+    if(xmlHttpConn3.status==200){
+     addDataToDisplayDataArray(JSON.parse(xmlHttpConn3.responseText));
+    }
+   connectionPool[3].status =AVAILABLE_STATUS;
+    }
+  };
+
+  xmlHttpConn4.onreadystatechange=function()
+  {
+
+  if (xmlHttpConn4.readyState==4 ) {
+   if(xmlHttpConn4.status==200){
+    addDataToDisplayDataArray(JSON.parse(xmlHttpConn4.responseText));
+   }
+   connectionPool[4].status =AVAILABLE_STATUS;
+    }
+  };
+
+  xmlHttpConn5.onreadystatechange=function()
+  {
+
+  if (xmlHttpConn5.readyState==4 ) {
+   if(xmlHttpConn5.status==200){
+   addDataToDisplayDataArray(JSON.parse(xmlHttpConn5.responseText));
+   }
+   connectionPool[5].status =AVAILABLE_STATUS;
+    }
+  };
+
+  xmlHttpConn6.onreadystatechange=function()
+  {
+
+  if (xmlHttpConn6.readyState==4 ) {
+   if(xmlHttpConn6.status==200){
+   addDataToDisplayDataArray(JSON.parse(xmlHttpConn6.responseText));
+   }
+   connectionPool[6].status =AVAILABLE_STATUS;
+    }
+  };
+
+  xmlHttpConn7.onreadystatechange=function()
+  {
+
+  if (xmlHttpConn7.readyState==4 ){
+    if(xmlHttpConn7.status==200){
+    addDataToDisplayDataArray(JSON.parse(xmlHttpConn7.responseText));
+    }
+    connectionPool[7].status =AVAILABLE_STATUS;
+    }
+  };
+
+
+     function getNewConnection(id){
+     return {"id":id ,"status":AVAILABLE_STATUS };
+     }
+
+    var connectionPool;
+
+    function initConnectionPool(poolSize) {
+    connectionPool = new Array();
+    for(var index =0 ;index < poolSize;  index++){
+    connectionPool.push(getNewConnection(index));
+    }
+    }
+
+    initConnectionPool(connectionPoolSize);
+
+    //Execution code starts
+
+   function makePageCall(data){
+    var requestFired =false;
+
+    while(!requestFired){
+     for(var index=0;index<connectionPoolSize;index++){
+         if(connectionPool[index].status === AVAILABLE_STATUS){
+             requestFired =true;
+             connectorArray[index].open("GET",reqUrlPart1+data+reqUrlPart2+accessToken,true);
+             try{
+             connectorArray[index].send();
+             }catch(err){
+              //Ignore error :- theses are from invalid search
+             }
+             connectionPool[index].status = BLOCKED_STATUS;
+             break;
+         }
+     }
+    }
+   }
+
+   function addDataToDisplayDataArray(data){
+     var found =false;
+     var index =0;
+     while(!found && (index < displayDataArray.length)){
+       if(displayDataArray[index].id === data.id){
+          found =true;
+       }
+     index ++;
+     }
+     if(!found && null!=data.id && data.id.trim().length>0){
+         displayDataArray.push(data);
+
+     }
+    // document.getElementById("searchDisplayContainer").innerHTML="";
+     if(displayDataArray.length>0){
+         document.getElementById("searchDisplayContainer").innerHTML ="";
+         displayDataArray.sort(function(a,b){
+            if(a.username.length > b.username.length){
+                return 1;
+            }
+            if(a.username.length <b.username.length){
+                return -1;
+            }
+            return 0;
+         });
+         for(var arrayIndex=0;arrayIndex<displayDataArray.length;arrayIndex++){
+         if(null!=displayDataArray[index] && null!=displayDataArray[index].about){
+          createSearchDataEntry(displayDataArray[arrayIndex]);
+         }
+
+     }
+     }else{
+        var noDataContainerDiv = document.createElement("div");
+        noDataContainerDiv.innerHTML("Holy 404 ! No results found !");
+        noDataContainerDiv.setAttribute('class','searchIndividualDataContainer');
+        document.getElementById("searchDisplayContainer").appendChild(noDataContainerDiv);
+     }
+
+   }
+
+    function purgeStaleDataFromAddDisplayDataArray(searchValue){
+     if(null!= searchValue && searchValue.trim().length > 0){
+     var index=0;
+     while(index <displayDataArray.length){
+
+           if(displayDataArray[index].username.trim().toLowerCase().indexOf(searchValue.trim().toLowerCase())=== -1){
+            console.log("Data removed"+ displayDataArray[index].id);
+            var entryMainDivContainer =document.getElementById(displayDataArray[index].id+"main");
+            entryMainDivContainer.parentNode.removeChild(entryMainDivContainer);
+            displayDataArray.splice(index,index+1);
+            index =0;
+           }else{
+             index++;
+           }
+
+     }
+
+    }else{
+
+         document.getElementById("searchDisplayContainer").innerHTML ="";
+         displayDataArray.length=0;
+     }
+    }
+
+    function getPageData(){
+       var inputData = document.getElementById("fbSearchInput").value;
+       if(null!= inputData && inputData.length <150){
+        purgeStaleDataFromAddDisplayDataArray(inputData);
+       if(inputData.trim().length>0){
+        makePageCall(inputData);
+       }else{
+         //  document.getElementById("searchDisplayContainer").innerHTML="";
+       }
+       }
+    }
+
+    function hideData(el){
+
+      var data= el.attributes.data.nodeValue;
+      var expandImgIdentifier =data+"more";
+      document.getElementById(data+"main").setAttribute('class','searchIndividualDataContainer');
+      document.getElementById(expandImgIdentifier).setAttribute('style','display:block');
+      document.getElementById(data+"hidden").setAttribute('style','display:none');
+      el.setAttribute('style','display:none');
+
+    }
+
+    function expandData(el){
+
+      var data= el.attributes.data.nodeValue;
+      var hideImgIdentifier =data+"less";
+      document.getElementById(data+"main").setAttribute('class','searchIndividualDataContainerExpanded');
+      document.getElementById(data+"hidden").setAttribute('style','display:block');
+      document.getElementById(hideImgIdentifier).setAttribute('style','display:block');
+      el.setAttribute('style','display:none');
+    }
+
+    function redirectToPage(el){
+           var url = el.attributes.data.nodeValue;
+           if(null!=url){
+             window.open(url, '_blank');
+           }
+    }
+    function addToFavourite(el){
+         var userNameToBeAdded = el.attributes.data.nodeValue;
+         if(null!= favouritesArray && favouritesArray.indexOf(userNameToBeAdded)==-1){
+           favouritesArray.push(userNameToBeAdded);
+           updateFavourites(favouritesArray);
+         }
+
+    }
+
+    function deleteFavourite(el){
+          var userNameToBeDeleted = el.attributes.data.nodeValue;
+          var indexToBeDeleted = userNameToBeDeleted.indexOf(userNameToBeDeleted);
+          favouritesArray.splice(indexToBeDeleted,1);
+          updateFavourites(favouritesArray);
+    }
+
+    function createFavouriteDisplay(username){
+      if(null!= username && username.trim().length >0){
+        var el = document.createElement("div");
+        el.setAttribute('class','favIndividualContainer');
+        var label = document.createElement("a");
+        label.setAttribute('href','http://www.facebook.com/'+username);
+        label.setAttribute('target','_blank');
+        var removeImg = document.createElement("img");
+        removeImg.setAttribute('title','Remove from favourite');
+        label.innerHTML = username;
+        label.setAttribute('class','removeFavLabel');
+        removeImg.setAttribute('src','images/deleteFav.png');
+        removeImg.setAttribute('onClick','deleteFavourite(this)');
+        removeImg.setAttribute('data',username);
+        removeImg.setAttribute('class','removeFav');
+        el.appendChild(label);
+        el.appendChild(removeImg);
+        document.getElementById("favouritesDisplay").appendChild(el);
+
+      }
+    }
+
+    function createSearchDataEntry(data){
+     if(null!=data && data.cover!=null && data.cover.source!=null){
+     var el =  document.createElement("div");
+
+     var img = document.createElement("img");
+     img.setAttribute('src',data.cover.source);
+     img.setAttribute('class','searchDataImage');
+     el.appendChild(img);
+     var aboutContainer = document.createElement("label");
+     aboutContainer.innerHTML=data.username;
+     aboutContainer.setAttribute('class','aboutContainer');
+     el.appendChild(aboutContainer);
+     var markFavImg = document.createElement("img");
+     markFavImg.setAttribute('src',"images/favourite.jpg");
+     markFavImg.setAttribute('title','Add to favourites');
+     markFavImg.setAttribute('class','favouriteImg');
+     markFavImg.setAttribute('data',data.username)
+     markFavImg.setAttribute('onClick','addToFavourite(this)');
+     var goImg = document.createElement("img");
+     goImg.setAttribute('src','images/go.png');
+     goImg.setAttribute('title','Opens in new page');
+     goImg.setAttribute('class','goimage');
+     goImg.setAttribute('data',data.link);
+     goImg.setAttribute('onClick','redirectToPage(this)');
+     var moreImg = document.createElement("img");
+     moreImg.setAttribute('src','images/expand.png');
+     moreImg.setAttribute('title','Show more details');
+     moreImg.setAttribute('class','showMoreImg');
+     moreImg.setAttribute('data',data.id);
+     moreImg.setAttribute('id',data.id+"more")
+     moreImg.setAttribute('onClick','expandData(this)');
+     var hideImg = document.createElement("img");
+     hideImg.setAttribute('src','images/hide.png');
+     hideImg.setAttribute('class','showLessImg');
+     hideImg.setAttribute("title",'Show less details');
+     hideImg.setAttribute('id',data.id+"less");
+     hideImg.setAttribute('onClick','hideData(this)');
+     hideImg.setAttribute('data',data.id);
+     var hiddenDiv = document.createElement("div");
+     hiddenDiv.setAttribute('class','hiddenDiv');
+     hiddenDiv.setAttribute('id',data.id+"hidden");
+
+
+     var aboutDiv = document.createElement("div");
+     var aboutData =data.about;
+     if(aboutData === undefined){
+         aboutData ="Not available";
+     }
+     aboutDiv.innerHTML ="<span class='entrylabel'>About :-</span>"+ aboutData;
+     var overviewDiv = document.createElement("div");
+     var overView = data.company_overview;
+     if(overView === undefined){
+         overView ="Not available";
+     }
+     overviewDiv.innerHTML = "<span class='entrylabel'>Overview :-</span>"+overView;
+     var missionData =data.mission;
+     if(undefined === missionData){
+         missionData ="Not available";
+     }
+     var missionDiv =document.createElement("div");
+     missionDiv.innerHTML = "<span class='entrylabel'>Mission :-</span>"+missionData;
+     hiddenDiv.appendChild(aboutDiv);
+     hiddenDiv.appendChild(overviewDiv);
+     hiddenDiv.appendChild(missionDiv);
+     el.appendChild(markFavImg);
+     el.appendChild(goImg);
+     el.appendChild(moreImg);
+     el.appendChild(hideImg);
+
+     var parent = document.createElement("div");
+     parent.setAttribute('class','searchIndividualDataContainer');
+     parent.setAttribute('id',data.id+"main");
+     parent.appendChild(el);
+     parent.appendChild(hiddenDiv);
+
+
+     var container = document.getElementById("searchDisplayContainer");
+     container.appendChild(parent);
+
+     }
+    }
+
+
+
+    function updateFavourites(favouritesArray){
+       var favouritesString="";
+       if(favouritesArray.length!=0){
+       for(var index=0;index<favouritesArray.length;index++){
+         favouritesString =favouritesString + favouritesArray[index]+",";
+       }
+       favouritesString =favouritesString.substr(0,favouritesString.length-1);
+       }
+        localStorage.setItem(COOKIE_STORE_KEY,favouritesString);
+
+       document.getElementById("favouritesDisplay").innerHTML="";
+       favouritesArray = getAllFavourites();
+       for(var index=0;index <favouritesArray.length;index ++){
+        createFavouriteDisplay(favouritesArray[index]);
+       }
+
+        if(favouritesArray== null || favouritesArray.length == 0){
+          document.getElementById("favouritesDisplay").innerHTML="";
+          var el = document.createElement("div");
+          el.innerHTML ="No items available";
+          document.getElementById("favouritesDisplay").appendChild(el);
+      }
+
+    }
+
+    function showAllFavouriteItems(){
+      for(var index=0;index<favouritesArray.length;index++){
+           createFavouriteDisplay(favouritesArray[index]);
+        }
+      if(favouritesArray== null || favouritesArray.length == 0|| (favouritesArray[0].trim().length == 0 && favouritesArray.length ==1)){
+           document.getElementById("favouritesDisplay").innerHTML ="";
+          var el = document.createElement("div");
+          el.innerHTML ="No items available";
+          document.getElementById("favouritesDisplay").appendChild(el);
+      }
+    }
+
+    function getAllFavourites(){
+     var favouritesString = localStorage.getItem(COOKIE_STORE_KEY);
+
+     if(null!= favouritesString){
+       var favouritesArray = favouritesString.split(",");
+       return favouritesArray;
+     }
+
+
+
+     return new Array();
+
+    }
+    function initialiseWidgets(){
+         if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
+       {
+       alert("Search will not work in firefox as xmlHttpRequest in firefox doesnot let cross domain network calls .");
+       }
+        favouritesArray = getAllFavourites();
+        showAllFavouriteItems();
+    }
+
+
+</script>
+
+<body id ="mainBody" onload="initialiseWidgets()">
+   <span id ="favouritesContainer">
+       <div id="favouritesHeader">Favourites</div>
+       <div id="favouritesDisplay"></div>
+  </span>
+
+  <span id = "fbSearchMainContainer">
+
+        <input id="fbSearchInput" onPaste="getPageData();" onkeyup="getPageData();" placeholder="Type here"/>
+         <div id ="searchDisplayContainer">
+
+         </div>
+  </span>
+
+
+
+</body>
+</html>
